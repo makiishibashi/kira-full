@@ -8,7 +8,7 @@ import { getAnalytics } from 'firebase/analytics';
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCxFsE_hMa-okJdmAtQsYq-_RemEEJz9y0",
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
   authDomain: "kirafull-d9233.firebaseapp.com",
   projectId: "kirafull-d9233",
   storageBucket: "kirafull-d9233.appspot.com", // ★ 補足: 一般的には .appspot.com ですが、元の設定でも動作します
