@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // posts/ というフォルダの中の、各ユーザーIDのフォルダに対するルール
+    match /posts/{userId}/{allPaths=**} {
+      // 誰でも読み取りは可能（投稿を見るために必要）
+      allow read;
+      
+      // 書き込み（作成、更新、削除）は、以下の4つの条件をすべて満たす場合のみ許可
+      allow write: if request.auth != null &&                  // 1. ユーザーがログインしている
+                      request.auth.uid == userId &&              // 2. 自分のユーザーIDのフォルダに書き込もうとしている
+                      request.resource.size < 5 * 1024 * 1024 && // 3. ファイルサイズが5MB未満である
+                      request.resource.contentType.matches('image/.*'); // 4. ファイルの種類が画像である
+    }
+  }
+}

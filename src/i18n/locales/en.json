@@ -1,0 +1,68 @@
+{
+  "app": {
+    "name": "KiraFull",
+    "tagline": "Discover Daily Sparkles Together"
+  },
+  "auth": {
+    "login": "Log In",
+    "register": "Create an Account",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Name",
+    "loginDescription": "Sign in to continue discovering sparkles",
+    "continueWithGoogle": "Continue with Google",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "orContinueWith": "or continue with"
+  },
+  "welcome": {
+    "title": "Welcome to KiraFull",
+    "description": "Discover and share the sparkles in your daily life with your loved one",
+    "createAccount": "Create an Account",
+    "login": "Log In",
+    "footer": {
+      "line1": "Find the sparkles in your everyday moments",
+      "line2": "Share them with the one you love"
+    }
+  },
+  "sparkle": {
+    "feed": "Sparkle Feed",
+    "album": "Sparkle Album",
+    "categories": {
+      "partner": "Partner's Sparkle",
+      "self": "My Sparkle",
+      "daily": "Daily Sparkle"
+    },
+    "form": {
+      "type": "Sparkle Type",
+      "text": "Describe Your Sparkle Moment",
+      "photo": "Add a Photo (Optional)",
+      "appreciation": "Words of Appreciation (Optional)",
+      "gratitude": "Gratitude & Joy (Optional)"
+    }
+  },
+  "partner": {
+    "connect": "Connect with Partner",
+    "status": {
+      "connected": "You're connected!",
+      "notConnected": "Connect with your partner first"
+    },
+    "invite": {
+      "title": "Share Your Invite Code",
+      "description": "Share this code with your partner so they can connect with you",
+      "generate": "Generate New Code",
+      "copy": "Copy Code"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success!",
+    "cancel": "Cancel",
+    "save": "Save",
+    "search": "Search",
+    "empty": "No items found"
+  }
+}
