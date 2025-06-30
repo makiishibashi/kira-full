@@ -6,9 +6,16 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
 
+// デバッグのため、APIキーを一度変数に入れます
+const debugApiKey = process.env.VITE_FIREBASE_API_KEY;
+
+// ★★★★★
+// Vercel上で、この値が何になっているかを直接確認します
+console.log("デプロイされたアプリが読み込んでいるAPIキー:", debugApiKey);
+// ★★★★★
 
 const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  apiKey: debugApiKey, // デバッグ用の変数を使う
   authDomain: "kirafull-d9233.firebaseapp.com",
   projectId: "kirafull-d9233",
   storageBucket: "kirafull-d9233.appspot.com", // ★ 補足: 一般的には .appspot.com ですが、元の設定でも動作します
