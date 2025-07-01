@@ -7,8 +7,8 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 // Firebase Functionsのモジュールをインポートします
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { auth, db } from '../config/firebase';
+import { httpsCallable } from "firebase/functions";
+import { auth, db, functionsInstance } from '../config/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import {
   createUserDocument,
@@ -20,9 +20,9 @@ import { User } from '../types';
 
 // Firebase Functionsを初期化します
 // 関数名は、`functions/src/index.ts`でエクスポートした名前と完全に一致させる必要があります
-const functions = getFunctions();
-const callConnectPartner = httpsCallable(functions, 'connectPartner');
-const callDisconnectPartner = httpsCallable(functions, 'disconnectPartner');
+
+const callConnectPartner = httpsCallable(functionsInstance, 'connectPartner');
+const callDisconnectPartner = httpsCallable(functionsInstance, 'disconnectPartner');
 
 
 type AuthContextType = {

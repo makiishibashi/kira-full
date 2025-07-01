@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, UserPlus, Check, RefreshCw, UserMinus, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
-import { getFunctions, httpsCallable } from "firebase/functions"; // インポートを確認
 
 const ConnectPartner = () => {
   const { user, generateInviteCode, connectPartner, disconnectPartner, refreshUserData } = useAuth();
@@ -135,19 +134,6 @@ const ConnectPartner = () => {
       setTimeout(() => {
         setIsCopied(false);
       }, 2000);
-    }
-  };
-
-// ... コンポーネント定義の中 ...
-  const handleTestFunction = async () => {
-    try {
-      const functions = getFunctions();
-      const helloWorld = httpsCallable(functions, 'helloWorld');
-      const result = await helloWorld();
-      alert('成功！サーバーからの応答: ' + JSON.stringify(result.data));
-    } catch (err) {
-      alert('テスト失敗。コンソールを確認してください。');
-      console.error("最小テスト関数呼び出しでエラー:", err);
     }
   };
 
