@@ -346,23 +346,6 @@ const ConnectPartner = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      <div style={{ padding: '20px', background: '#f0f0f0', border: '2px dashed red', marginTop: '30px', borderRadius: '8px' }}>
-        <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '10px' }}>デバッグ用テストエリア</h3>
-        <p style={{ fontSize: '0.9rem', marginBottom: '15px' }}>このボタンを押して、最小限のテスト関数が成功するか確認します。</p>
-        <button 
-          onClick={handleTestFunction} 
-          style={{ 
-            background: '#007bff', 
-            color: 'white', 
-            padding: '10px 15px', 
-            border: 'none', 
-            borderRadius: '5px', 
-            cursor: 'pointer'
-          }}
-        >
-          "helloWorld" 関数テスト実行
-        </button>
-      </div>
     </div>
   );
 };
