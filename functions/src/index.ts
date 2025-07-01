@@ -154,3 +154,9 @@ export const disconnectPartner = onCall(async (request) => {
     throw new HttpsError("internal", "接続解除中にエラーが発生しました");
   }
 });
+// 最小限のテスト用の呼び出し可能な関数
+export const helloWorld = functions.https.onCall((data, context) => {
+  // このログが出力されるかどうかが重要
+  functions.logger.info("Hello World function was called!", {structuredData: true});
+  return { message: "Hello from a minimal test function!" };
+});

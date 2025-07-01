@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, UserPlus, Check, RefreshCw, UserMinus, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
+import { getFunctions, httpsCallable } from "firebase/functions"; // インポートを確認
 
 const ConnectPartner = () => {
   const { user, generateInviteCode, connectPartner, disconnectPartner, refreshUserData } = useAuth();
@@ -134,6 +135,19 @@ const ConnectPartner = () => {
       setTimeout(() => {
         setIsCopied(false);
       }, 2000);
+    }
+  };
+
+// ... コンポーネント定義の中 ...
+  const handleTestFunction = async () => {
+    try {
+      const functions = getFunctions();
+      const helloWorld = httpsCallable(functions, 'helloWorld');
+      const result = await helloWorld();
+      alert('成功！サーバーからの応答: ' + JSON.stringify(result.data));
+    } catch (err) {
+      alert('テスト失敗。コンソールを確認してください。');
+      console.error("最小テスト関数呼び出しでエラー:", err);
     }
   };
 
@@ -332,6 +346,23 @@ const ConnectPartner = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <div style={{ padding: '20px', background: '#f0f0f0', border: '2px dashed red', marginTop: '30px', borderRadius: '8px' }}>
+        <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '10px' }}>デバッグ用テストエリア</h3>
+        <p style={{ fontSize: '0.9rem', marginBottom: '15px' }}>このボタンを押して、最小限のテスト関数が成功するか確認します。</p>
+        <button 
+          onClick={handleTestFunction} 
+          style={{ 
+            background: '#007bff', 
+            color: 'white', 
+            padding: '10px 15px', 
+            border: 'none', 
+            borderRadius: '5px', 
+            cursor: 'pointer'
+          }}
+        >
+          "helloWorld" 関数テスト実行
+        </button>
+      </div>
     </div>
   );
 };
