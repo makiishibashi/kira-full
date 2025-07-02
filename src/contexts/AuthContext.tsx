@@ -1,10 +1,14 @@
-import { createContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
-  signInWithPopup,
+  getAuth,
+  onAuthStateChanged,
+  User as FirebaseUser,
+  signInWithRedirect,
+  getRedirectResult,
 } from 'firebase/auth';
 // Firebase Functionsのモジュールをインポートします
 import { httpsCallable } from "firebase/functions";
@@ -57,6 +61,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ログイン状態を監視し、ユーザーデータを取得します
   useEffect(() => {
+    // まず、Googleからのリダイレクト結果があるか確認します
+  getRedirectResult(auth)
+  .then((result) => {
+    if (result) {
+      // Googleからリダイレクトされてきた場合、resultにユーザー情報が入っている
+      console.log('Googleからのリダイレクトを検出:', result.user);
+      // この後の onAuthStateChanged がユーザー情報を処理するので、ここでは特別な処理は不要です
+    }
+  })
+  .catch((error) => {
+    console.error("リダイレクト結果の取得エラー:", error);
+  });
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       console.log('Auth state changed:', firebaseUser?.uid);
       
@@ -129,7 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('Attempting Google login');
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
       return true;
     } catch (error) {
       console.error('Google login error:', error);
