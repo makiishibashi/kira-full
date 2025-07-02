@@ -21,8 +21,8 @@ import { User } from '../types';
 // Firebase Functionsを初期化します
 // 関数名は、`functions/src/index.ts`でエクスポートした名前と完全に一致させる必要があります
 
-const callConnectPartner = httpsCallable(functionsInstance, 'connectPartner');
-const callDisconnectPartner = httpsCallable(functionsInstance, 'disconnectPartner');
+//const callConnectPartner = httpsCallable(functionsInstance, 'connectPartner');
+//const callDisconnectPartner = httpsCallable(functionsInstance, 'disconnectPartner');
 
 
 type AuthContextType = {
@@ -185,6 +185,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const connectPartner = async (inviteCode: string): Promise<void> => {
     if (!user) throw new Error('ログインが必要です');
     try {
+      const callConnectPartner = httpsCallable(functionsInstance, 'connectPartner');
       console.log(`Calling connectPartner Cloud Function with code: ${inviteCode}`);
       const result = await callConnectPartner({ inviteCode: inviteCode });
       console.log('Cloud Function `connectPartner` successful:', result);
@@ -199,6 +200,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const disconnectPartner = async (): Promise<void> => {
     if (!user || !user.partnerId) throw new Error('パートナー情報がありません');
     try {
+      const callDisconnectPartner = httpsCallable(functionsInstance, 'disconnectPartner');
       console.log('Calling disconnectPartner Cloud Function...');
       const result = await callDisconnectPartner();
       console.log('Cloud Function `disconnectPartner` successful:', result);
