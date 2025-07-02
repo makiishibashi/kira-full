@@ -1,21 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.disconnectPartner = exports.connectPartner = void 0;
-const app_1 = require("firebase-admin/app");
-const firestore_1 = require("firebase-admin/firestore");
-const https_1 = require("firebase-functions/v2/https");
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 // Firebase Admin SDKを初期化
-(0, app_1.initializeApp)();
-const db = (0, firestore_1.getFirestore)();
+initializeApp();
+const db = getFirestore();
 // パートナー接続のCloud Function
-exports.connectPartner = (0, https_1.onCall)(async (request) => {
+export const connectPartner = onCall(async (request) => {
     if (!request.auth) {
-        throw new https_1.HttpsError("unauthenticated", "ログインが必要です");
+        throw new HttpsError("unauthenticated", "ログインが必要です");
     }
     const currentUserId = request.auth.uid;
     const inviteCode = request.data.inviteCode;
     if (!inviteCode) {
-        throw new https_1.HttpsError("invalid-argument", "招待コードが必要です");
+        throw new HttpsError("invalid-argument", "招待コードが必要です");
     }
     console.log(`connectPartner called by ${currentUserId} with code: ${inviteCode}`);
     try {
@@ -25,27 +22,27 @@ exports.connectPartner = (0, https_1.onCall)(async (request) => {
         // デバッグ用のログ
         console.log(`Query for invite code ${inviteCode} found ${partnerQuery.size} documents.`);
         if (partnerQuery.empty) {
-            throw new https_1.HttpsError("not-found", "無効な招待コードです");
+            throw new HttpsError("not-found", "無効な招待コードです");
         }
         const partnerDoc = partnerQuery.docs[0];
         const partnerId = partnerDoc.id;
         const partnerData = partnerDoc.data();
         if (!partnerData) {
-            throw new https_1.HttpsError("internal", "パートナーのデータが見つかりません。");
+            throw new HttpsError("internal", "パートナーのデータが見つかりません。");
         }
         if (partnerId === currentUserId) {
-            throw new https_1.HttpsError("invalid-argument", "自分の招待コードは使用できません");
+            throw new HttpsError("invalid-argument", "自分の招待コードは使用できません");
         }
         const currentUserDoc = await usersRef.doc(currentUserId).get();
         if (!currentUserDoc.exists) {
-            throw new https_1.HttpsError("not-found", "ユーザーが見つかりません");
+            throw new HttpsError("not-found", "ユーザーが見つかりません");
         }
         const currentUserData = currentUserDoc.data();
         if (!currentUserData) {
-            throw new https_1.HttpsError("internal", "あなたのデータが見つかりません。");
+            throw new HttpsError("internal", "あなたのデータが見つかりません。");
         }
         if (currentUserData.partnerId === partnerId) {
-            throw new https_1.HttpsError("already-exists", "既に接続済みです");
+            throw new HttpsError("already-exists", "既に接続済みです");
         }
         const batch = db.batch();
         // 現在のユーザーを更新
@@ -73,16 +70,16 @@ exports.connectPartner = (0, https_1.onCall)(async (request) => {
     }
     catch (error) {
         console.error("Error in connectPartner:", error);
-        if (error instanceof https_1.HttpsError) {
+        if (error instanceof HttpsError) {
             throw error;
         }
-        throw new https_1.HttpsError("internal", "接続中にエラーが発生しました");
+        throw new HttpsError("internal", "接続中にエラーが発生しました");
     }
 });
 // パートナー接続解除のCloud Function
-exports.disconnectPartner = (0, https_1.onCall)(async (request) => {
+export const disconnectPartner = onCall(async (request) => {
     if (!request.auth) {
-        throw new https_1.HttpsError("unauthenticated", "ログインが必要です");
+        throw new HttpsError("unauthenticated", "ログインが必要です");
     }
     const currentUserId = request.auth.uid;
     console.log(`disconnectPartner called by ${currentUserId}`);
@@ -90,29 +87,29 @@ exports.disconnectPartner = (0, https_1.onCall)(async (request) => {
         const usersRef = db.collection("users");
         const currentUserDoc = await usersRef.doc(currentUserId).get();
         if (!currentUserDoc.exists) {
-            throw new https_1.HttpsError("not-found", "ユーザーが見つかりません");
+            throw new HttpsError("not-found", "ユーザーが見つかりません");
         }
         const currentUserData = currentUserDoc.data();
         if (!currentUserData) {
-            throw new https_1.HttpsError("internal", "あなたのデータが見つかりません。");
+            throw new HttpsError("internal", "あなたのデータが見つかりません。");
         }
         const partnerId = currentUserData.partnerId;
         if (!partnerId) {
-            throw new https_1.HttpsError("failed-precondition", "パートナーが設定されていません");
+            throw new HttpsError("failed-precondition", "パートナーが設定されていません");
         }
         const batch = db.batch();
         // 現在のユーザーからパートナー情報を削除
         batch.update(usersRef.doc(currentUserId), {
-            partnerId: firestore_1.FieldValue.delete(),
-            partnerName: firestore_1.FieldValue.delete(),
-            partnerEmail: firestore_1.FieldValue.delete(),
+            partnerId: FieldValue.delete(),
+            partnerName: FieldValue.delete(),
+            partnerEmail: FieldValue.delete(),
             updatedAt: new Date(),
         });
         // パートナーからも現在のユーザー情報を削除
         batch.update(usersRef.doc(partnerId), {
-            partnerId: firestore_1.FieldValue.delete(),
-            partnerName: firestore_1.FieldValue.delete(),
-            partnerEmail: firestore_1.FieldValue.delete(),
+            partnerId: FieldValue.delete(),
+            partnerName: FieldValue.delete(),
+            partnerEmail: FieldValue.delete(),
             updatedAt: new Date(),
         });
         await batch.commit();
@@ -124,10 +121,10 @@ exports.disconnectPartner = (0, https_1.onCall)(async (request) => {
     }
     catch (error) {
         console.error("Error in disconnectPartner:", error);
-        if (error instanceof https_1.HttpsError) {
+        if (error instanceof HttpsError) {
             throw error;
         }
-        throw new https_1.HttpsError("internal", "接続解除中にエラーが発生しました");
+        throw new HttpsError("internal", "接続解除中にエラーが発生しました");
     }
 });
 //# sourceMappingURL=index.js.map

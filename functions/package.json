@@ -1,9 +1,11 @@
 {
   "name": "functions",
+  "type": "module", 
   "version": "1.0.0",
   "description": "Cloud Functions for Firebase",
   "main": "lib/index.js",
   "scripts": {
+    "lint": "eslint",
     "build": "tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
@@ -20,7 +22,8 @@
     "firebase-functions": "^5.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.35.1"
   },
   "private": true
 }
