@@ -19,8 +19,8 @@ const CreatePost = () => {
   const [formData, setFormData] = useState<Omit<SparkleFormData, 'imageUrl'>>({
     text: '',
     category: 'partner',
-    appreciation: '',
-    gratitude: '',
+    //appreciation: '',
+    //gratitude: '',
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -174,15 +174,15 @@ const CreatePost = () => {
           </div>
         </div>
         
-        <div>
+        {/* <div>
           <label htmlFor="appreciation" className="block text-sm font-medium text-gray-700 mb-1">{t('sparkle.form.appreciation')}</label>
           <textarea id="appreciation" name="appreciation" rows={2} value={formData.appreciation} onChange={handleChange} placeholder={t('sparkle.form.appreciationPlaceholder')} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"/>
-        </div>
+        </div> */}
         
-        <div>
+        {/* <div>
           <label htmlFor="gratitude" className="block text-sm font-medium text-gray-700 mb-1">{t('sparkle.form.gratitude')}</label>
           <textarea id="gratitude" name="gratitude" rows={2} value={formData.gratitude} onChange={handleChange} placeholder={t('sparkle.form.gratitudePlaceholder')} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"/>
-        </div>
+        </div> */}
         
         <div className="flex justify-end pt-4">
           <button type="button" onClick={() => navigate(-1)} className="mr-3 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
