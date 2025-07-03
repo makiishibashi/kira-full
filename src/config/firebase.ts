@@ -8,7 +8,7 @@ import { getAnalytics } from 'firebase/analytics';
 // .env.localファイルから環境変数を読み込む
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  authDomain: "kira-full.vercel.app",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
@@ -42,3 +42,4 @@ if (import.meta.env.DEV) {
 }
 
 export { auth, provider, functionsInstance, db, analytics, storage };
+// Vercelへの再デプロイをトリガーするためのコメント 2025/07/03
