@@ -7,6 +7,7 @@ import {
   getAuth,
   onAuthStateChanged,
   User as FirebaseUser,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
 } from 'firebase/auth';
@@ -141,15 +142,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const loginWithGoogle = async () => {
-    try {
-      console.log('Attempting Google login');
-      const provider = new GoogleAuthProvider();
+  const loginWithGoogle = async (): Promise<boolean> => {
+    // ユーザーのデバイスがモバイルかどうかを簡易的に判定します
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+  
+    if (isMobile) {
+      // モバイルの場合：これまで通りリダイレクト方式を試みます
+      console.log('Mobile device detected, using signInWithRedirect.');
       await signInWithRedirect(auth, provider);
+      // リダイレクトの場合、成功か失敗かはこの時点では分からないため、trueを返しておきます
       return true;
-    } catch (error) {
-      console.error('Google login error:', error);
-      return false;
+    } else {
+      // パソコンの場合：以前動いていたポップアップ方式を使います
+      console.log('Desktop device detected, using signInWithPopup.');
+      try {
+        const result = await signInWithPopup(auth, provider);
+        // ポップアップが成功すれば、onAuthStateChangedがユーザーを検知します
+        console.log('Popup login successful for user:', result.user.displayName);
+        return true;
+      } catch (error) {
+        // ポップアップが閉じられた場合などもエラーに含まれます
+        console.error('Popup login error:', error);
+        return false;
+      }
     }
   };
 
