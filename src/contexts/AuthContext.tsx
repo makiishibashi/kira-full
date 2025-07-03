@@ -10,10 +10,11 @@ import {
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
+  indexedDBLocalPersistence,
 } from 'firebase/auth';
 // Firebase Functionsのモジュールをインポートします
 import { httpsCallable } from "firebase/functions";
-import { auth, db, functionsInstance } from '../config/firebase';
+import { app, auth, db, functionsInstance } from '../config/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import {
   createUserDocument,
@@ -62,51 +63,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ログイン状態を監視し、ユーザーデータを取得します
   useEffect(() => {
-    // まず、Googleからのリダイレクト結果があるか確認します
+    // onAuthStateChangedは、認証状態が変わるたびに呼び出される信頼できるソース
+const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+  console.log('Auth state changed:', firebaseUser?.uid);
+
+  if (firebaseUser) {
+    // ユーザーが確定した場合（ログイン済み、またはリダイレクト成功後）
+    try {
+      const userData = await getUserDocument(firebaseUser.uid);
+      if (userData) {
+        console.log('User data loaded:', userData);
+        setUser(userData);
+      } else {
+        // Firestoreにドキュメントがない新規ユーザーの場合
+        console.log('User document not found, creating new one...');
+        const inviteCode = await generateUniqueInviteCode();
+        const newUser: User = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? `dummy-${firebaseUser.uid}@example.com`,
+          name: firebaseUser.displayName || 'User',
+          inviteCode,
+        };
+        await createUserDocument(newUser);
+        console.log('New user created:', newUser);
+        setUser(newUser);
+      }
+    } catch (error) {
+      console.error('Error handling user data:', error);
+      setUser(null);
+    } finally {
+      // ユーザー情報の処理が完了したので、ローディングを終了
+      setIsLoading(false);
+    }
+  } else {
+    // ユーザーがいない場合、リダイレクトからの復帰直後か、本当にログアウトしているのかを確認
     getRedirectResult(auth)
       .then((result) => {
-        if (result) {
-          // Googleからリダイレクトされてきた場合、resultにユーザー情報が入っている
-          console.log('Googleからのリダイレクトを検出:', result.user);
-          // この後の onAuthStateChanged がユーザー情報を処理するので、ここでは特別な処理は不要です
+        // resultがnullの場合、リダイレクト直後ではない。つまり本当にログアウトしている。
+        if (!result) {
+          console.log('User is truly logged out.');
+          setUser(null);
+          // この時点で初めて、ローディングを終了する
+          setIsLoading(false);
         }
+        // resultがある場合は、リダイレクトからの復帰。
+        // この後、自動的にもう一度 onAuthStateChanged が firebaseUserありで呼ばれるので、
+        // ここでは何もしない（isLoadingもtrueのまま）。
       })
       .catch((error) => {
         console.error("リダイレクト結果の取得エラー:", error);
-      });
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      console.log('Auth state changed:', firebaseUser?.uid);
-
-      if (firebaseUser) {
-        try {
-          const userData = await getUserDocument(firebaseUser.uid);
-          if (userData) {
-            console.log('User data loaded:', userData);
-            setUser(userData);
-          } else {
-            // Firestoreにドキュメントがない場合、新規作成します
-            const inviteCode = await generateUniqueInviteCode();
-            const newUser: User = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email ?? `dummy-${firebaseUser.uid}@example.com`,
-              name: firebaseUser.displayName || 'User',
-              inviteCode,
-            };
-            await createUserDocument(newUser);
-            console.log('New user created:', newUser);
-            setUser(newUser);
-          }
-        } catch (error) {
-          console.error('Error loading user data:', error);
-          setUser(null);
-        }
-      } else {
-        console.log('User logged out');
+        // エラーが発生した場合も、最終的な状態としてローディングを終了
         setUser(null);
-      }
-      setIsLoading(false);
-    });
-    return () => unsubscribe();
+        setIsLoading(false);
+      });
+  }
+});
+
+return () => unsubscribe();
   }, []);
 
   // リアルタイムリスナーを設置してユーザーデータの変更を監視します
@@ -143,31 +156,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const loginWithGoogle = async (): Promise<boolean> => {
-    // ユーザーのデバイスがモバイルかどうかを簡易的に判定します
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    console.log('Attempting login with signInWithPopup on all devices...');
     
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
   
-    if (isMobile) {
-      // モバイルの場合：これまで通りリダイレクト方式を試みます
-      console.log('Mobile device detected, using signInWithRedirect.');
-      await signInWithRedirect(auth, provider);
-      // リダイレクトの場合、成功か失敗かはこの時点では分からないため、trueを返しておきます
+    try {
+      const result = await signInWithPopup(auth, provider);
+      // ポップアップが成功すれば、onAuthStateChangedがユーザーを検知します
+      console.log('Popup login successful for user:', result.user.displayName);
       return true;
-    } else {
-      // パソコンの場合：以前動いていたポップアップ方式を使います
-      console.log('Desktop device detected, using signInWithPopup.');
-      try {
-        const result = await signInWithPopup(auth, provider);
-        // ポップアップが成功すれば、onAuthStateChangedがユーザーを検知します
-        console.log('Popup login successful for user:', result.user.displayName);
-        return true;
-      } catch (error) {
-        // ポップアップが閉じられた場合などもエラーに含まれます
-        console.error('Popup login error:', error);
-        return false;
-      }
+    } catch (error) {
+      // ポップアップがユーザーによって閉じられた場合や、何らかのエラーが起きた場合
+      console.error('Popup login error:', error);
+  
+      // エラーコードで、ポップアップがブロックされたかなどを判定することも可能です
+      // 例: if (error.code === 'auth/popup-blocked') { ... }
+      
+      return false;
     }
   };
 

@@ -17,7 +17,7 @@ const firebaseConfig = {
 };
 
 // Firebaseを初期化
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); 
 
 // 各サービスのインスタンスを取得
 const auth = getAuth(app);
@@ -41,5 +41,16 @@ if (import.meta.env.DEV) {
   connectStorageEmulator(storage, 'localhost', 9199);
 }
 
-export { auth, provider, functionsInstance, db, analytics, storage };
+// 2. モバイルのリダイレクト専用の設定を作成
+const mobileRedirectConfig = {
+  ...firebaseConfig,
+  // authDomainだけを、プロジェクトID.firebaseapp.com の形式に書き換える
+  authDomain: 'kirafull-d9233.firebaseapp.com',
+};
+
+// 3. モバイルリダイレクト専用のアプリインスタンスを作成
+//    第2引数にユニークな名前を渡して、通常のアプリと区別します
+export const mobileRedirectApp = initializeApp(mobileRedirectConfig, 'mobileRedirect');
+
+export { app, auth, provider, functionsInstance, db, analytics, storage };
 
